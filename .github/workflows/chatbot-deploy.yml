@@ -12,7 +12,7 @@ on:
 
 env:
  TF_LOG: INFO
- ACCOUNT_ID: "123456789"
+ ACCOUNT_ID: "992382467535"
  REGION: "eu-central-1"
  PROJECT_NAME: chatbot-xxx
  MAP_TAG: "mig0UIQXKY78U"
@@ -58,7 +58,7 @@ jobs:
       - name: configure aws credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::123456789:role/Role_XYZ
+          role-to-assume: arn:aws:iam::992382467535:role/oidc-github-role
           role-session-name: samplerolesession
           aws-region: eu-central-1
       - name: Run Tag and Push
@@ -91,7 +91,7 @@ jobs:
       - name: configure aws credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::123456789:role/Role_XYZ
+          role-to-assume: arn:aws:iam::992382467535:role/oidc-github-role
           role-session-name: samplerolesession
           aws-region: eu-central-1
       - name:  Create statefile bucket
