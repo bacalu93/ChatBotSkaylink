@@ -136,4 +136,4 @@ jobs:
     steps:
       - name: Terraform destroy
         run: |
-          terraform destroy -auto-approve -var 'project_name=${{ env.PROJECT_NAME }}' -var 'account_id=${{ env.ACCOUNT_ID }}' -var 'region=${{ env.REGION }}' -var 'map_tag=${{ env.MAP_TAG }}' -var 'image_tag=${{ env.image_tag }}'
+          terraform destroy -auto-approve
