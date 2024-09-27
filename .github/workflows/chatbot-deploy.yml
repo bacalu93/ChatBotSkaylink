@@ -44,7 +44,7 @@ jobs:
               - lambda_functions/**
 
   DockerImage:
-    if: needs.PrepareFilter.outputs.docker_image_changed  == 'true'
+    if: needs.PrepareFilter.outputs.docker_image_changed == 'true'
     runs-on: ubuntu-latest
     needs: PrepareFilter
     defaults:
@@ -80,7 +80,7 @@ jobs:
     if: always()  # Ensure this job runs regardless of previous outcomes
     runs-on: ubuntu-latest
     needs: [PrepareFilter, DockerImage]
-    environment: staging  # Requires manual approval
+    environment: staging  # Requires manual approval through GitHub Environments
     defaults:
       run:
         shell: bash
@@ -154,14 +154,6 @@ jobs:
     needs: Terraform
     environment: production  # Requires manual approval for destroy step
     steps:
-      - name: Manual approval before Terraform destroy
-        if: github.event_name == 'workflow_dispatch'
-        uses: hmarr/auto-approve-action@v2
-        with:
-          message: "Please approve the Terraform destroy step"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Terraform destroy
         run: |
           terraform destroy -auto-approve -var 'project_name=${{ env.PROJECT_NAME }}' -var 'account_id=${{ env.ACCOUNT_ID }}' -var 'region=${{ env.REGION }}' -var 'map_tag=${{ env.MAP_TAG }}' -var 'image_tag=${{ steps.getimagetag.outputs.docker_image_tag }}'
