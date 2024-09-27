@@ -136,4 +136,6 @@ jobs:
     steps:
       - name: Terraform destroy
         run: |
+          terraform init -backend-config="bucket=${{ env.PROJECT_NAME }}-statefile-bucket-tf-${{ env.ACCOUNT_ID }}" -backend-config="dynamodb_table=${{ env.PROJECT_NAME }}-tf-lock"
+          terraform providers
           terraform destroy -auto-approve
