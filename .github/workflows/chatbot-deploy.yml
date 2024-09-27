@@ -14,8 +14,8 @@ env:
  TF_LOG: INFO
  ACCOUNT_ID: "992382467535"
  REGION: "eu-central-1"
- PROJECT_NAME: chatbot-xxx
- MAP_TAG: "mig0UIQXKY78U"
+ PROJECT_NAME: chatbot-portfolio
+ MAP_TAG: "1234567"
 permissions:
   id-token: write
   contents: read
