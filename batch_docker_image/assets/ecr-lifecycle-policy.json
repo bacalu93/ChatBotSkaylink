@@ -1,0 +1,17 @@
+{
+    "rules": [
+      {
+        "rulePriority": 1,
+        "description": "Untagged images should not exist, but expire any older than one year",
+        "selection": {
+          "tagStatus": "untagged",
+          "countType": "sinceImagePushed",
+          "countUnit": "days",
+          "countNumber": 365
+        },
+        "action": {
+          "type": "expire"
+        }
+      }
+    ]
+  }

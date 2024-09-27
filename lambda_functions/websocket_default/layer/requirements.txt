@@ -1,0 +1,5 @@
+python-jose==3.3.0
+requests==2.32.3
+boto3==1.34.137
+markdown==3.6
+langdetect==1.0.9
