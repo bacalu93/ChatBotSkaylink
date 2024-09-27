@@ -216,7 +216,7 @@ resource "aws_rds_cluster_instance" "rds_writer_instance" {
 }
 
 resource "aws_iam_role" "kb_role" {
-  name = "AmazonBedrockExecutionRoleForKnowledgeBase_kb-role"
+  name = "${var.project_name}-AmazonBedrockExecutionRoleForKnowledgeBase_kb-role"
   tags = {
     CreatedBy = "Terraform"
     ProjectName = var.project_name
