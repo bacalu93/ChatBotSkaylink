@@ -14,7 +14,7 @@ env:
  TF_LOG: INFO
  ACCOUNT_ID: "992382467535"
  REGION: "eu-central-1"
- PROJECT_NAME: chatbot-skaylink-portfolio
+ PROJECT_NAME: chatbot93
  MAP_TAG: "1234567"
 permissions:
   id-token: write
