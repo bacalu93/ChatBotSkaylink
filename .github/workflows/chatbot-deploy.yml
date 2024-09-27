@@ -77,7 +77,7 @@ jobs:
         id: run_tag_and_push  
 
   Terraform:
-    if: always()
+    if: always()  # Ensure this job runs regardless of previous outcomes
     runs-on: ubuntu-latest
     needs: [PrepareFilter, DockerImage]
     environment: staging  # Requires manual approval
@@ -148,6 +148,12 @@ jobs:
         run: |
           terraform apply -auto-approve -var 'project_name=${{ env.PROJECT_NAME }}' -var 'account_id=${{ env.ACCOUNT_ID }}' -var 'region=${{ env.REGION }}' -var 'map_tag=${{ env.MAP_TAG }}' -var 'image_tag=${{ steps.getimagetag.outputs.docker_image_tag }}'
 
+  TerraformDestroy:
+    if: always()  # Ensures that destroy runs even if the apply step fails
+    runs-on: ubuntu-latest
+    needs: Terraform
+    environment: production  # Requires manual approval for destroy step
+    steps:
       - name: Manual approval before Terraform destroy
         if: github.event_name == 'workflow_dispatch'
         uses: hmarr/auto-approve-action@v2
@@ -156,11 +162,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  TerraformDestroy:
-    needs: Terraform
-    runs-on: ubuntu-latest
-    environment: production  # Requires manual approval for destroy step
-    steps:
       - name: Terraform destroy
         run: |
           terraform destroy -auto-approve -var 'project_name=${{ env.PROJECT_NAME }}' -var 'account_id=${{ env.ACCOUNT_ID }}' -var 'region=${{ env.REGION }}' -var 'map_tag=${{ env.MAP_TAG }}' -var 'image_tag=${{ steps.getimagetag.outputs.docker_image_tag }}'
