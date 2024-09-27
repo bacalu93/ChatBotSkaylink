@@ -133,6 +133,10 @@ jobs:
     runs-on: ubuntu-latest
     needs: Terraform
     environment: production  # Requires manual approval for destroy step
+    defaults:
+      run:
+        shell: bash
+        working-directory: 'terraform'  # Ensure Terraform is run in the correct directory
     steps:
       - name: Git clone the repository
         uses: actions/checkout@v4
@@ -143,6 +147,9 @@ jobs:
           role-to-assume: arn:aws:iam::992382467535:role/oidc-github-role
           aws-region: eu-central-1
           role-session-name: oidc-session
+
+      - name: List files in the working directory  # Debugging step
+        run: ls -la
 
       - name: Terraform init and destroy
         run: |
