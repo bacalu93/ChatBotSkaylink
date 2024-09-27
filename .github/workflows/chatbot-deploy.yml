@@ -9,18 +9,17 @@ on:
       - batch_docker_image/**
   workflow_dispatch:
 
-
 env:
- TF_LOG: INFO
- ACCOUNT_ID: "992382467535"
- REGION: "eu-central-1"
- PROJECT_NAME: chatbot93
- MAP_TAG: "1234567"
+  TF_LOG: INFO
+  ACCOUNT_ID: "992382467535"
+  REGION: "eu-central-1"
+  PROJECT_NAME: chatbot93
+  MAP_TAG: "1234567"
 permissions:
   id-token: write
   contents: read
 
-jobs: 
+jobs:
   PrepareFilter:
     runs-on: ubuntu-latest
     outputs:
@@ -68,7 +67,7 @@ jobs:
           aws ecr create-repository --repository-name $repo_name --image-tag-mutability IMMUTABLE || true
           aws ecr put-lifecycle-policy --repository-name $repo_name --lifecycle-policy-text file://assets/ecr-lifecycle-policy.json || true
           aws ecr get-login-password --region "${{ env.REGION }}" | docker login --username AWS --password-stdin "${{ env.ACCOUNT_ID }}.dkr.ecr.${{ env.REGION }}.amazonaws.com"
-          docker build -t $repo_name .
+          docker build -t $repo_name . 
           docker tag $repo_name:latest "${{ env.ACCOUNT_ID }}.dkr.ecr.${{ env.REGION }}.amazonaws.com/$repo_name:$current_date"
           docker push "${{ env.ACCOUNT_ID }}.dkr.ecr.${{ env.REGION }}.amazonaws.com/$repo_name:$current_date"
           aws ssm put-parameter --name docker_image_tag --value $current_date --type String  --overwrite
@@ -81,6 +80,7 @@ jobs:
     if: always()
     runs-on: ubuntu-latest
     needs: [PrepareFilter, DockerImage]
+    environment: staging  # Requires manual approval
     defaults:
       run:
         shell: bash
@@ -94,7 +94,7 @@ jobs:
           role-to-assume: arn:aws:iam::992382467535:role/oidc-github-role
           role-session-name: samplerolesession
           aws-region: eu-central-1
-      - name:  Create statefile bucket
+      - name: Create statefile bucket
         run: |
           if aws s3api head-bucket --bucket "${{ env.PROJECT_NAME }}-statefile-bucket-tf-${{ env.ACCOUNT_ID }}" 2>/dev/null; then
             echo "Bucket already exists."
@@ -142,7 +142,25 @@ jobs:
         run: |
           terraform init -backend-config="bucket=${{ env.PROJECT_NAME }}-statefile-bucket-tf-${{ env.ACCOUNT_ID }}" -backend-config="dynamodb_table=${{ env.PROJECT_NAME }}-tf-lock"
           terraform providers
+
       - name: Terraform apply
         id: apply
         run: |
           terraform apply -auto-approve -var 'project_name=${{ env.PROJECT_NAME }}' -var 'account_id=${{ env.ACCOUNT_ID }}' -var 'region=${{ env.REGION }}' -var 'map_tag=${{ env.MAP_TAG }}' -var 'image_tag=${{ steps.getimagetag.outputs.docker_image_tag }}'
+
+      - name: Manual approval before Terraform destroy
+        if: github.event_name == 'workflow_dispatch'
+        uses: hmarr/auto-approve-action@v2
+        with:
+          message: "Please approve the Terraform destroy step"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  TerraformDestroy:
+    needs: Terraform
+    runs-on: ubuntu-latest
+    environment: production  # Requires manual approval for destroy step
+    steps:
+      - name: Terraform destroy
+        run: |
+          terraform destroy -auto-approve -var 'project_name=${{ env.PROJECT_NAME }}' -var 'account_id=${{ env.ACCOUNT_ID }}' -var 'region=${{ env.REGION }}' -var 'map_tag=${{ env.MAP_TAG }}' -var 'image_tag=${{ steps.getimagetag.outputs.docker_image_tag }}'
