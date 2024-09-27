@@ -134,8 +134,23 @@ jobs:
     needs: Terraform
     environment: production  # Requires manual approval for destroy step
     steps:
-      - name: Terraform destroy
+      - name: Git clone the repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::992382467535:role/oidc-github-role
+          aws-region: eu-central-1
+          role-session-name: oidc-session
+
+      - name: Terraform init and destroy
         run: |
-          terraform init -backend-config="bucket=${{ env.PROJECT_NAME }}-statefile-bucket-tf-${{ env.ACCOUNT_ID }}" -backend-config="dynamodb_table=${{ env.PROJECT_NAME }}-tf-lock"
-          terraform providers
-          terraform destroy -auto-approve
+          terraform init -backend-config="bucket=${{ env.PROJECT_NAME }}-statefile-bucket-tf-${{ env.ACCOUNT_ID }}" \
+                         -backend-config="dynamodb_table=${{ env.PROJECT_NAME }}-tf-lock"
+          terraform destroy -auto-approve \
+            -var "project_name=${{ env.PROJECT_NAME }}" \
+            -var "account_id=${{ env.ACCOUNT_ID }}" \
+            -var "region=${{ env.REGION }}" \
+            -var "map_tag=${{ env.MAP_TAG }}" \
+            -var "image_tag=${{ env.image_tag }}"
