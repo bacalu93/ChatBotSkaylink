@@ -10,6 +10,10 @@ resource "aws_dynamodb_table" "connection_table" {
     name = "ConnectionID"
     type = "S"
   }
+    lifecycle {
+    prevent_destroy = true
+  }
+  
   tags = {
     CreatedBy = "Terraform"
     ProjectName = var.project_name
