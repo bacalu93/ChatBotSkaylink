@@ -20,6 +20,16 @@ resource "null_resource" "pip_install" {
       ./venv/bin/python -m pip --version
       ./venv/bin/python -m pip list
       
+      # Create requirements.txt
+      echo "Creating requirements.txt"
+      cat <<EOF > ${var.source_dir}/layer/requirements.txt
+      python-jose==3.3.0
+      requests==2.32.3
+      boto3==1.34.137
+      markdown==3.6
+      langdetect==1.0.9
+      EOF
+
       # Install application dependencies using the virtual environment's Python
       if [ -s ${var.source_dir}/layer/requirements.txt ]; then
         echo "Installing requirements"
@@ -44,6 +54,7 @@ resource "null_resource" "pip_install" {
     EOT
   }
 }
+
 
 
 
