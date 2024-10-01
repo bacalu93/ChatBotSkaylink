@@ -4,6 +4,11 @@ resource "null_resource" "pip_install" {
   }
   provisioner "local-exec" {
     command = <<-EOT
+      # Create a virtual environment in the runner’s working directory
+      python3 -m venv venv
+      source venv/bin/activate
+
+      
       if [ -s ${var.source_dir}/layer/requirements.txt ]; then
         pip install -r ${var.source_dir}/layer/requirements.txt -t ${var.source_dir}/layer/python/lib/python3.12/site-packages
       fi
