@@ -3,33 +3,39 @@ resource "null_resource" "pip_install" {
     always_run = "${timestamp()}"
   }
 
+  resource "null_resource" "pip_install" {
+  triggers = {
+    always_run = "${timestamp()}"
+  }
   provisioner "local-exec" {
-  command = <<-EOT
-    # List the contents of the layer directory to check for requirements.txt
-    ls -la ${var.source_dir}/layer/
+    command = <<-EOT
+      # List the contents of the layer directory to check for requirements.txt
+      ls -la ${var.source_dir}/layer/
 
-    # Create a virtual environment and ensure pip is installed
-    python3 -m venv venv --without-pip
-    curl https://bootstrap.pypa.io/get-pip.py | ./venv/bin/python
+      # Create a virtual environment and ensure pip is installed manually
+      python3 -m venv venv --without-pip
+      curl https://bootstrap.pypa.io/get-pip.py | ./venv/bin/python
 
-    # Install application dependencies
-    if [ -s ${var.source_dir}/layer/requirements.txt ]; then
-      ./venv/bin/python -m pip install -r ${var.source_dir}/layer/requirements.txt --no-cache-dir -t ${var.source_dir}/layer/python/lib/python3.12/site-packages
-    else
-      echo "requirements.txt not found!"
-    fi
+      # Install application dependencies using the virtual environment's Python
+      if [ -s ${var.source_dir}/layer/requirements.txt ]; then
+        ./venv/bin/python -m pip install -r ${var.source_dir}/layer/requirements.txt --no-cache-dir -t ${var.source_dir}/layer/python/lib/python3.12/site-packages
+      else
+        echo "requirements.txt not found!"
+      fi
 
-    # Install pytest and other testing dependencies
-    ./venv/bin/python -m pip install pytest boto3
+      # Install pytest and boto3
+      ./venv/bin/python -m pip install pytest boto3
 
-    # Run tests if the tests folder exists
-    if [ -d "${var.source_dir}/tests" ]; then
-      ./venv/bin/python -m pytest ${var.source_dir}/tests
-    else
-      echo "Tests folder does not exist, skipping tests."
-    fi
-  EOT
+      # Run tests if the tests folder exists
+      if [ -d "${var.source_dir}/tests" ]; then
+        ./venv/bin/python -m pytest ${var.source_dir}/tests
+      else
+        echo "Tests folder does not exist, skipping tests."
+      fi
+    EOT
+  }
 }
+
 
 
 }
