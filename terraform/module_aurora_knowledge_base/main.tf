@@ -354,9 +354,14 @@ resource "aws_flow_log" "flowlogs" {
 }
 
 resource "aws_cloudwatch_log_group" "flowloggroup" {
-  name = "vpc/flowlogs/"
+  name              = "vpc/flowlogs/"
   retention_in_days = 7
+
+  lifecycle {
+    ignore_changes = [name]
+  }
 }
+
 
 data "aws_iam_policy_document" "assume_role" {
   statement {
