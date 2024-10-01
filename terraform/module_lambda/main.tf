@@ -5,9 +5,11 @@ resource "null_resource" "pip_install" {
   provisioner "local-exec" {
     command = <<-EOT
       # List the contents of the layer directory to check for requirements.txt
+      echo "Checking layer directory"
       ls -la ${var.source_dir}/layer/
 
       # Create a virtual environment and ensure pip is installed manually
+      echo "Creating virtual environment"
       python3 -m venv venv --without-pip
       curl https://bootstrap.pypa.io/get-pip.py | ./venv/bin/python
       ./venv/bin/python -m ensurepip --upgrade
@@ -17,16 +19,22 @@ resource "null_resource" "pip_install" {
 
       # Install application dependencies using the virtual environment's Python
       if [ -s ${var.source_dir}/layer/requirements.txt ]; then
+        echo "Installing requirements"
+        ./venv/bin/python -m pip install --upgrade pip
         ./venv/bin/python -m pip install -r ${var.source_dir}/layer/requirements.txt --no-cache-dir -t ${var.source_dir}/layer/python/lib/python3.12/site-packages
       else
         echo "requirements.txt not found!"
       fi
+
+      # Verify installation of dependencies
+      ./venv/bin/python -m pip list | grep -E 'jose|requests'
 
       # Install pytest and boto3
       ./venv/bin/python -m pip install pytest boto3
 
       # Run tests if the tests folder exists
       if [ -d "${var.source_dir}/tests" ]; then
+        echo "Running tests"
         ./venv/bin/python -m pytest ${var.source_dir}/tests
       else
         echo "Tests folder does not exist, skipping tests."
@@ -34,6 +42,7 @@ resource "null_resource" "pip_install" {
     EOT
   }
 }
+
 
 
 
