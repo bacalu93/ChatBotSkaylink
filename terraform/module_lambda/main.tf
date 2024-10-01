@@ -11,6 +11,9 @@ resource "null_resource" "pip_install" {
       python3 -m venv venv --without-pip
       curl https://bootstrap.pypa.io/get-pip.py | ./venv/bin/python
       ./venv/bin/python -m ensurepip --upgrade
+      ./venv/bin/python --version
+      ./venv/bin/python -m pip --version
+      ./venv/bin/python -m pip list
 
       # Install application dependencies using the virtual environment's Python
       if [ -s ${var.source_dir}/layer/requirements.txt ]; then
