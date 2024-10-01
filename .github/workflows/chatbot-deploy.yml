@@ -43,38 +43,38 @@ jobs:
               - terraform/**
               - lambda_functions/**
 
-  DockerImage:
-    if: needs.PrepareFilter.outputs.docker_image_changed == 'true'
-    runs-on: ubuntu-latest
-    needs: PrepareFilter
-    defaults:
-      run:
-        shell: bash
-        working-directory: 'batch_docker_image'
-    steps:
-      - name: Git clone the repository
-        uses: actions/checkout@v4
-      - name: configure aws credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: arn:aws:iam::992382467535:role/oidc-github-role
-          role-session-name: samplerolesession
-          aws-region: eu-central-1
-      - name: Run Tag and Push
-        shell: bash
-        run: |
-          current_date=$(date +%Y-%m-%d-%H-%M-%S)
-          aws ecr create-repository --repository-name $repo_name --image-tag-mutability IMMUTABLE || true
-          aws ecr put-lifecycle-policy --repository-name $repo_name --lifecycle-policy-text file://assets/ecr-lifecycle-policy.json || true
-          aws ecr get-login-password --region "${{ env.REGION }}" | docker login --username AWS --password-stdin "${{ env.ACCOUNT_ID }}.dkr.ecr.${{ env.REGION }}.amazonaws.com"
-          docker build -t $repo_name . 
-          docker tag $repo_name:latest "${{ env.ACCOUNT_ID }}.dkr.ecr.${{ env.REGION }}.amazonaws.com/$repo_name:$current_date"
-          docker push "${{ env.ACCOUNT_ID }}.dkr.ecr.${{ env.REGION }}.amazonaws.com/$repo_name:$current_date"
-          aws ssm put-parameter --name docker_image_tag --value $current_date --type String  --overwrite
-        env:
-          repo_name: "${{ env.PROJECT_NAME }}-update-knowledge-base"
-        working-directory: "batch_docker_image"
-        id: run_tag_and_push  
+  # DockerImage:
+  #   if: needs.PrepareFilter.outputs.docker_image_changed == 'true'
+  #   runs-on: ubuntu-latest
+  #   needs: PrepareFilter
+  #   defaults:
+  #     run:
+  #       shell: bash
+  #       working-directory: 'batch_docker_image'
+  #   steps:
+  #     - name: Git clone the repository
+  #       uses: actions/checkout@v4
+  #     - name: configure aws credentials
+  #       uses: aws-actions/configure-aws-credentials@v4
+  #       with:
+  #         role-to-assume: arn:aws:iam::992382467535:role/oidc-github-role
+  #         role-session-name: samplerolesession
+  #         aws-region: eu-central-1
+  #     - name: Run Tag and Push
+  #       shell: bash
+  #       run: |
+  #         current_date=$(date +%Y-%m-%d-%H-%M-%S)
+  #         aws ecr create-repository --repository-name $repo_name --image-tag-mutability IMMUTABLE || true
+  #         aws ecr put-lifecycle-policy --repository-name $repo_name --lifecycle-policy-text file://assets/ecr-lifecycle-policy.json || true
+  #         aws ecr get-login-password --region "${{ env.REGION }}" | docker login --username AWS --password-stdin "${{ env.ACCOUNT_ID }}.dkr.ecr.${{ env.REGION }}.amazonaws.com"
+  #         docker build -t $repo_name . 
+  #         docker tag $repo_name:latest "${{ env.ACCOUNT_ID }}.dkr.ecr.${{ env.REGION }}.amazonaws.com/$repo_name:$current_date"
+  #         docker push "${{ env.ACCOUNT_ID }}.dkr.ecr.${{ env.REGION }}.amazonaws.com/$repo_name:$current_date"
+  #         aws ssm put-parameter --name docker_image_tag --value $current_date --type String  --overwrite
+  #       env:
+  #         repo_name: "${{ env.PROJECT_NAME }}-update-knowledge-base"
+  #       working-directory: "batch_docker_image"
+  #       id: run_tag_and_push  
 
   Terraform:
     if: always()  # Ensure this job runs regardless of previous outcomes
