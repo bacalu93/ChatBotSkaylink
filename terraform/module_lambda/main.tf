@@ -13,6 +13,7 @@ resource "null_resource" "pip_install" {
       python3 -m venv venv
       ./venv/bin/python -m ensurepip --upgrade
       ./venv/bin/python -m pip install --upgrade pip setuptools wheel
+      ./venv/bin/python -m pip install pytest==7.0.1
 
       # Check Python and pip versions
       ./venv/bin/python --version
