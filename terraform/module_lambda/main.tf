@@ -8,11 +8,13 @@ resource "null_resource" "pip_install" {
       echo "Checking layer directory"
       ls -la ${var.source_dir}/layer/
       
-      # Create a virtual environment and ensure pip is installed manually
+      # Create a virtual environment and ensure pip is installed
       echo "Creating virtual environment"
-      python3 -m venv venv --without-pip
-      curl https://bootstrap.pypa.io/get-pip.py | ./venv/bin/python
+      python3 -m venv venv
       ./venv/bin/python -m ensurepip --upgrade
+      ./venv/bin/python -m pip install --upgrade pip setuptools wheel
+
+      # Check Python and pip versions
       ./venv/bin/python --version
       ./venv/bin/python -m pip --version
       ./venv/bin/python -m pip list
@@ -20,7 +22,6 @@ resource "null_resource" "pip_install" {
       # Install application dependencies using the virtual environment's Python
       if [ -s ${var.source_dir}/layer/requirements.txt ]; then
         echo "Installing requirements"
-        ./venv/bin/python -m pip install --upgrade pip
         ./venv/bin/python -m pip install -r ${var.source_dir}/layer/requirements.txt --no-cache-dir -t ${var.source_dir}/layer/python/lib/python3.12/site-packages
       else
         echo "requirements.txt not found!"
@@ -29,12 +30,9 @@ resource "null_resource" "pip_install" {
       # Verify installation of dependencies
       ./venv/bin/python -m pip list | grep -E 'jose|requests'
       
-      # Activate virtual environment before running tests
-      . ./venv/bin/activate
-      
       # Install pytest and boto3
       ./venv/bin/python -m pip install pytest boto3
-      
+
       # Run tests if the tests folder exists
       if [ -d "${var.source_dir}/tests" ]; then
         echo "Running tests"
@@ -45,6 +43,7 @@ resource "null_resource" "pip_install" {
     EOT
   }
 }
+
 
 
 
