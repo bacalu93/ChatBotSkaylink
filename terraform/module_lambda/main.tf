@@ -20,7 +20,7 @@ resource "null_resource" "pip_install" {
     fi
   EOT
 }
-
+}
 
 # for creating a lambda function the source file has to be in a zip folder
 data "archive_file" "code" {
