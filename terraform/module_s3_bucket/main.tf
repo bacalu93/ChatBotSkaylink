@@ -1,9 +1,14 @@
 resource "aws_s3_bucket" "mybucket" {
   bucket = var.bucket_name
+
   tags = {
-    CreatedBy = "Terraform"
+    CreatedBy   = "Terraform"
     ProjectName = var.project_name
     map-migrated = var.map_tag
+  }
+
+  lifecycle {
+    prevent_destroy = true
   }
 }
 
@@ -12,11 +17,10 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "example" {
 
   rule {
     apply_server_side_encryption_by_default {
-      sse_algorithm     = "aws:kms"
+      sse_algorithm = "aws:kms"
     }
   }
 }
-
 
 resource "aws_s3_bucket_policy" "bucket_policy" {
   bucket = aws_s3_bucket.mybucket.id
