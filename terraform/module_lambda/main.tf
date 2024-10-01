@@ -3,24 +3,24 @@ resource "null_resource" "pip_install" {
     always_run = "${timestamp()}"
   }
   provisioner "local-exec" {
-    command = <<-EOT
-      if [ -s ${var.source_dir}/layer/requirements.txt ]; then
-        pip install -r ${var.source_dir}/layer/requirements.txt -t ${var.source_dir}/layer/python/lib/python3.12/site-packages
-      fi
-      pip install pytest boto3
+  command = <<-EOT
+    # Create a virtual environment
+    python3 -m venv venv
+    
+    # Use the virtual environment's Python directly without activating
+    ./venv/bin/python -m pip install -r ${var.source_dir}/layer/requirements.txt -t ${var.source_dir}/layer/python/lib/python3.12/site-packages
+    
+    ./venv/bin/python -m pip install pytest boto3
 
-      if [ -d "${var.source_dir}/tests" ]; then
-        if [ -s ${var.source_dir}/layer/requirements.txt ]; then
-          pip install -r ${var.source_dir}/layer/requirements.txt
-        fi
-        timeout 5
-        pytest ${var.source_dir}/tests
-      else
-        echo "Tests folder does not exist, skipping tests."
-      fi
-    EOT
-  }
+    # Run tests if the tests folder exists
+    if [ -d "${var.source_dir}/tests" ]; then
+      ./venv/bin/python -m pytest ${var.source_dir}/tests
+    else
+      echo "Tests folder does not exist, skipping tests."
+    fi
+  EOT
 }
+
 
 # for creating a lambda function the source file has to be in a zip folder
 data "archive_file" "code" {
