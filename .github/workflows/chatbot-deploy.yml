@@ -88,6 +88,10 @@ jobs:
     steps:
       - name: Git clone the repository
         uses: actions/checkout@v4
+      - name: Setup Python  # Add Python setup step here
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
       - name: configure aws credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
