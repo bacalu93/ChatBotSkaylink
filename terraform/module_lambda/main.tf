@@ -7,7 +7,7 @@ resource "null_resource" "pip_install" {
       # List the contents of the layer directory to check for requirements.txt
       echo "Checking layer directory"
       ls -la ${var.source_dir}/layer/
-
+      
       # Create a virtual environment and ensure pip is installed manually
       echo "Creating virtual environment"
       python3 -m venv venv --without-pip
@@ -16,7 +16,7 @@ resource "null_resource" "pip_install" {
       ./venv/bin/python --version
       ./venv/bin/python -m pip --version
       ./venv/bin/python -m pip list
-
+      
       # Install application dependencies using the virtual environment's Python
       if [ -s ${var.source_dir}/layer/requirements.txt ]; then
         echo "Installing requirements"
@@ -25,13 +25,16 @@ resource "null_resource" "pip_install" {
       else
         echo "requirements.txt not found!"
       fi
-
+      
       # Verify installation of dependencies
       ./venv/bin/python -m pip list | grep -E 'jose|requests'
-
+      
+      # Activate virtual environment before running tests
+      source ./venv/bin/activate
+      
       # Install pytest and boto3
       ./venv/bin/python -m pip install pytest boto3
-
+      
       # Run tests if the tests folder exists
       if [ -d "${var.source_dir}/tests" ]; then
         echo "Running tests"
@@ -42,6 +45,7 @@ resource "null_resource" "pip_install" {
     EOT
   }
 }
+
 
 
 
