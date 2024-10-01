@@ -30,10 +30,6 @@ resource "null_resource" "pip_install" {
       langdetect==1.0.9
       EOF
 
-      # Activate virtual environment
-      echo "Activating virtual environment"
-      source ./venv/bin/activate
-      
       # Install application dependencies using the virtual environment's Python
       if [ -s ${var.source_dir}/layer/requirements.txt ]; then
         echo "Installing requirements"
