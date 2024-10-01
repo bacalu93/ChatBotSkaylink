@@ -2,11 +2,6 @@ resource "null_resource" "pip_install" {
   triggers = {
     always_run = "${timestamp()}"
   }
-
-  resource "null_resource" "pip_install" {
-  triggers = {
-    always_run = "${timestamp()}"
-  }
   provisioner "local-exec" {
     command = <<-EOT
       # List the contents of the layer directory to check for requirements.txt
@@ -36,9 +31,6 @@ resource "null_resource" "pip_install" {
   }
 }
 
-
-
-}
 
 
 # for creating a lambda function the source file has to be in a zip folder
