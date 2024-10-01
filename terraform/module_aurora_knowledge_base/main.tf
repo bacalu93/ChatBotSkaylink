@@ -354,12 +354,9 @@ resource "aws_flow_log" "flowlogs" {
 }
 
 resource "aws_cloudwatch_log_group" "flowloggroup" {
-  name              = "vpc/flowlogs/"
+  name              = "vpc/${var.project_name}/flowlogs"
   retention_in_days = 7
 
-  lifecycle {
-    ignore_changes = [name]
-  }
 }
 
 

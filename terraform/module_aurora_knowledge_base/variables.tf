@@ -31,3 +31,4 @@ variable "batch_security_group" {
 variable "map_tag" {
   type = string
 }
+

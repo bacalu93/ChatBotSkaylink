@@ -1,8 +1,8 @@
 resource "aws_iam_role" "ecs_instance_role" {
   name = "${var.project_name}_ecs_instance_role_${var.name}"
   tags = {
-    CreatedBy = "Terraform"
-    ProjectName = var.project_name
+    CreatedBy    = "Terraform"
+    ProjectName  = var.project_name
     map-migrated = var.map_tag
   }
 
@@ -31,8 +31,8 @@ resource "aws_iam_policy" "policy_batch" {
   name        = "${var.project_name}_batchjob_policy"
   description = "CW and S3"
   tags = {
-    CreatedBy = "Terraform"
-    ProjectName = var.project_name
+    CreatedBy    = "Terraform"
+    ProjectName  = var.project_name
     map-migrated = var.map_tag
   }
   policy = <<EOF
@@ -45,7 +45,7 @@ resource "aws_iam_policy" "policy_batch" {
         "logs:PutLogEvents",
         "cloudwatch:PutMetricData",
         "secretsmanager:GetSecretValue"
-                ],
+      ],
       "Effect": "Allow",
       "Resource": [
         "arn:aws:logs:*:*:*",
@@ -57,7 +57,7 @@ resource "aws_iam_policy" "policy_batch" {
       "Action": [
         "s3:ListBucket",
         "s3:GetObject"
-                ],
+      ],
       "Effect": "Allow",
       "Resource": [
         "arn:aws:s3:::${var.kb_bucket_name}",
@@ -72,7 +72,7 @@ resource "aws_iam_policy" "policy_batch" {
         "bedrock:GetKnowledgeBase",
         "bedrock:UpdateKnowledgeBase",
         "bedrock:UpdateDataSource"
-        ],
+      ],
       "Effect": "Allow",
       "Resource": [
         "arn:aws:bedrock:${var.region}:${var.account_id}:knowledge-base/*"
@@ -80,17 +80,17 @@ resource "aws_iam_policy" "policy_batch" {
     },
     {
       "Action": [
-          "bedrock:InvokeModel"
+        "bedrock:InvokeModel"
       ],
       "Effect": "Allow",
       "Resource": [
-          "arn:aws:bedrock:${var.region}::foundation-model/cohere.embed-multilingual-v3"
+        "arn:aws:bedrock:${var.region}::foundation-model/cohere.embed-multilingual-v3"
       ]
     },
     {
       "Action": [
         "iam:PassRole"
-        ],
+      ],
       "Effect": "Allow",
       "Resource": [
         "${var.kb_role_arn}"
@@ -100,7 +100,7 @@ resource "aws_iam_policy" "policy_batch" {
       "Action": [
         "ssm:GetParameter",
         "ssm:PutParameter"
-        ],
+      ],
       "Effect": "Allow",
       "Resource": [
         "arn:aws:ssm:${var.region}:${var.account_id}:parameter/datasource_id",
@@ -118,11 +118,11 @@ resource "aws_iam_role_policy_attachment" "cw_logs" {
 }
 
 resource "aws_iam_instance_profile" "ecs_instance_role_profile" {
-  name = "ecs_instance_role_${var.name}"
+  name = "ecs_instance_role_${var.project_name}_${var.name}"
   role = aws_iam_role.ecs_instance_role.name
   tags = {
-    CreatedBy = "Terraform"
-    ProjectName = var.project_name
+    CreatedBy    = "Terraform"
+    ProjectName  = var.project_name
     map-migrated = var.map_tag
   }
 }
@@ -130,8 +130,8 @@ resource "aws_iam_instance_profile" "ecs_instance_role_profile" {
 resource "aws_iam_role" "aws_batch_service_role" {
   name = "${var.project_name}_batch_service_role_${var.name}"
   tags = {
-    CreatedBy = "Terraform"
-    ProjectName = var.project_name
+    CreatedBy    = "Terraform"
+    ProjectName  = var.project_name
     map-migrated = var.map_tag
   }
   assume_role_policy = <<EOF
@@ -155,12 +155,11 @@ resource "aws_iam_role_policy_attachment" "aws_batch_service_role" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSBatchServiceRole"
 }
 
-
 resource "aws_internet_gateway" "gw" {
   vpc_id = var.vpc_id
   tags = {
-    CreatedBy = "Terraform"
-    ProjectName = var.project_name
+    CreatedBy    = "Terraform"
+    ProjectName  = var.project_name
     map-migrated = var.map_tag
   }
 }
@@ -172,8 +171,8 @@ resource "aws_route_table" "batch_job_route_table" {
     gateway_id = aws_internet_gateway.gw.id
   }
   tags = {
-    CreatedBy = "Terraform"
-    ProjectName = var.project_name
+    CreatedBy    = "Terraform"
+    ProjectName  = var.project_name
     map-migrated = var.map_tag
   }
 }
@@ -196,17 +195,19 @@ resource "aws_security_group" "aws_security_group_batch_job" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = [var.trusted_ip_range]  # Use a variable for trusted IP ranges
+    cidr_blocks = [var.trusted_ip_range]
   }
+
   egress {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
   tags = {
-    CreatedBy = "Terraform"
-    ProjectName = var.project_name
+    CreatedBy    = "Terraform"
+    ProjectName  = var.project_name
     map-migrated = var.map_tag
   }
 }
@@ -217,10 +218,10 @@ resource "aws_subnet" "subnet_batch_job" {
   vpc_id                = var.vpc_id
   cidr_block            = "10.0.0.0/24"
   map_public_ip_on_launch = true
-  availability_zone= "${data.aws_availability_zones.available.names[0]}"
+  availability_zone = "${data.aws_availability_zones.available.names[0]}"
   tags = {
-    CreatedBy = "Terraform"
-    ProjectName = var.project_name
+    CreatedBy    = "Terraform"
+    ProjectName  = var.project_name
     map-migrated = var.map_tag
   }
 }
@@ -228,11 +229,11 @@ resource "aws_subnet" "subnet_batch_job" {
 resource "aws_subnet" "subnet_batch_job2" {
   vpc_id                = var.vpc_id
   cidr_block            = "10.0.1.0/24"
-  availability_zone= "${data.aws_availability_zones.available.names[1]}"
   map_public_ip_on_launch = true
+  availability_zone = "${data.aws_availability_zones.available.names[1]}"
   tags = {
-    CreatedBy = "Terraform"
-    ProjectName = var.project_name
+    CreatedBy    = "Terraform"
+    ProjectName  = var.project_name
     map-migrated = var.map_tag
   }
 }
@@ -250,7 +251,7 @@ resource "aws_batch_compute_environment" "batch_env_batch_job" {
     max_vcpus             = 16
     min_vcpus             = 0
     security_group_ids    = [aws_security_group.aws_security_group_batch_job.id]
-    subnets               = [aws_subnet.subnet_batch_job.id,aws_subnet.subnet_batch_job2.id]
+    subnets               = [aws_subnet.subnet_batch_job.id, aws_subnet.subnet_batch_job2.id]
     type                  = "EC2"
   }
 
@@ -258,9 +259,8 @@ resource "aws_batch_compute_environment" "batch_env_batch_job" {
   type         = "MANAGED"
   depends_on   = [aws_iam_role_policy_attachment.aws_batch_service_role]
   tags = {
-    CreatedBy = "Terraform"
-    ProjectName = var.project_name
+    CreatedBy    = "Terraform"
+    ProjectName  = var.project_name
     map-migrated = var.map_tag
   }
 }
-
