@@ -8,9 +8,10 @@ resource "null_resource" "pip_install" {
     # List the contents of the layer directory to check for requirements.txt
     ls -la ${var.source_dir}/layer/
 
-    # Create a virtual environment
-    python3 -m venv venv
-    
+    # Create a virtual environment and ensure pip is installed
+    python3 -m venv venv --without-pip
+    curl https://bootstrap.pypa.io/get-pip.py | ./venv/bin/python
+
     # Install application dependencies
     if [ -s ${var.source_dir}/layer/requirements.txt ]; then
       ./venv/bin/python -m pip install -r ${var.source_dir}/layer/requirements.txt --no-cache-dir -t ${var.source_dir}/layer/python/lib/python3.12/site-packages
@@ -29,6 +30,7 @@ resource "null_resource" "pip_install" {
     fi
   EOT
 }
+
 
 }
 
