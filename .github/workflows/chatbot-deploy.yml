@@ -79,7 +79,7 @@ jobs:
   Terraform:
     if: always()  # Ensure this job runs regardless of previous outcomes
     runs-on: ubuntu-latest
-    needs: [PrepareFilter, DockerImage]
+    needs: [PrepareFilter ]  # add Docker Image later
     environment: staging  # Requires manual approval through GitHub Environments
     defaults:
       run:
