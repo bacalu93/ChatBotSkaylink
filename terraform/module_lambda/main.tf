@@ -30,7 +30,7 @@ resource "null_resource" "pip_install" {
       ./venv/bin/python -m pip list | grep -E 'jose|requests'
       
       # Activate virtual environment before running tests
-      source ./venv/bin/activate
+      . ./venv/bin/activate
       
       # Install pytest and boto3
       ./venv/bin/python -m pip install pytest boto3
@@ -45,6 +45,7 @@ resource "null_resource" "pip_install" {
     EOT
   }
 }
+
 
 
 
