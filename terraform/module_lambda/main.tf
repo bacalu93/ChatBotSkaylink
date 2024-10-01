@@ -2,25 +2,27 @@ resource "null_resource" "pip_install" {
   triggers = {
     always_run = "${timestamp()}"
   }
-  provisioner "local-exec" {
-  command = <<-EOT
-    # Create a virtual environment
-    python3 -m venv venv
-    
-    # Use the virtual environment's Python directly without activating
-    ./venv/bin/python -m pip install -r ${var.source_dir}/layer/requirements.txt -t ${var.source_dir}/layer/python/lib/python3.12/site-packages
-    
-    ./venv/bin/python -m pip install pytest boto3
 
-    # Run tests if the tests folder exists
-    if [ -d "${var.source_dir}/tests" ]; then
-      ./venv/bin/python -m pytest ${var.source_dir}/tests
-    else
-      echo "Tests folder does not exist, skipping tests."
-    fi
-  EOT
+  provisioner "local-exec" {
+    command = <<-EOT
+      # Create a virtual environment
+      python3 -m venv venv
+      
+      # Use the virtual environment's Python directly without activating
+      ./venv/bin/python -m pip install -r ${var.source_dir}/layer/requirements.txt -t ${var.source_dir}/layer/python/lib/python3.12/site-packages
+      
+      ./venv/bin/python -m pip install pytest boto3
+
+      # Run tests if the tests folder exists
+      if [ -d "${var.source_dir}/tests" ]; then
+        ./venv/bin/python -m pytest ${var.source_dir}/tests
+      else
+        echo "Tests folder does not exist, skipping tests."
+      fi
+    EOT
+  }
 }
-}
+
 
 # for creating a lambda function the source file has to be in a zip folder
 data "archive_file" "code" {
