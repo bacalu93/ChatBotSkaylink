@@ -93,6 +93,8 @@ jobs:
         with:
           python-version: '3.12'
           cache: 'pip'
+      - name: Install dependencies
+        run: pip install -r lambda_functions/websocket_default/layer/requirements.txt
       - name: configure aws credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
