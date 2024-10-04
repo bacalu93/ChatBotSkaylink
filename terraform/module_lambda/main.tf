@@ -182,29 +182,29 @@
 #   EOF
 # }
 
-resource "null_resource" "pip_install" {
-  triggers = {
-    always_run = "${timestamp()}"
-  }
-  provisioner "local-exec" {
-    command = <<-EOT
-      if [ -s ${var.source_dir}/layer/requirements.txt ]; then
-        pip install -r ${var.source_dir}/layer/requirements.txt -t ${var.source_dir}/layer/python/lib/python3.12/site-packages -v
-      fi
-      pip install pytest boto3
+# resource "null_resource" "pip_install" {
+#   triggers = {
+#     always_run = "${timestamp()}"
+#   }
+#   provisioner "local-exec" {
+#     command = <<-EOT
+#       if [ -s ${var.source_dir}/layer/requirements.txt ]; then
+#         pip install -r ${var.source_dir}/layer/requirements.txt -t ${var.source_dir}/layer/python/lib/python3.12/site-packages -v
+#       fi
+#       pip install pytest boto3
 
-      if [ -d "${var.source_dir}/tests" ]; then
-        if [ -s ${var.source_dir}/layer/requirements.txt ]; then
-          pip install -r ${var.source_dir}/layer/requirements.txt
-        fi
-        timeout 5
-        pytest ${var.source_dir}/tests
-      else
-        echo "Tests folder does not exist, skipping tests."
-      fi
-    EOT
-  }
-}
+#       if [ -d "${var.source_dir}/tests" ]; then
+#         if [ -s ${var.source_dir}/layer/requirements.txt ]; then
+#           pip install -r ${var.source_dir}/layer/requirements.txt
+#         fi
+#         timeout 5
+#         pytest ${var.source_dir}/tests
+#       else
+#         echo "Tests folder does not exist, skipping tests."
+#       fi
+#     EOT
+#   }
+# }
 
 # for creating a lambda function the source file has to be in a zip folder
 data "archive_file" "code" {

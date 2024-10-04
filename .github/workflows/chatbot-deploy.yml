@@ -93,6 +93,20 @@ jobs:
         with:
           python-version: '3.12'
           cache: 'pip'
+      - name: Install dependencies
+        run: |
+          if [ -s ${GITHUB_WORKSPACE}/layer/requirements.txt ]; then
+            pip install -r ${GITHUB_WORKSPACE}/layer/requirements.txt -t ${GITHUB_WORKSPACE}/layer/python/lib/python3.12/site-packages
+          fi
+            pip install pytest boto3
+  
+      - name: Run tests
+        run: |
+          if [ -d "${GITHUB_WORKSPACE}/tests" ]; then
+            pytest ${GITHUB_WORKSPACE}/tests
+          else
+            echo "Tests folder does not exist, skipping tests."
+          fi
       - name: configure aws credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
