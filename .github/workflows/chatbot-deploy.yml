@@ -92,7 +92,12 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-          cache: 'pip'
+      - name: Check Python version
+        run: python --version
+
+      - name: Check pip version
+        run: pip3 --version
+        
       - name: Install dependencies
         run: |
           if [ -s ${GITHUB_WORKSPACE}/layer/requirements.txt ]; then
