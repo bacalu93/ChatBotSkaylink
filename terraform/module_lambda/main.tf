@@ -189,7 +189,7 @@ resource "null_resource" "pip_install" {
   provisioner "local-exec" {
     command = <<-EOT
       if [ -s ${var.source_dir}/layer/requirements.txt ]; then
-        pip install -r ${var.source_dir}/layer/requirements.txt -t ${var.source_dir}/layer/python/lib/python3.12/site-packages
+        pip install -r ${var.source_dir}/layer/requirements.txt -t ${var.source_dir}/layer/python/lib/python3.12/site-packages -v
       fi
       pip install pytest boto3
 
