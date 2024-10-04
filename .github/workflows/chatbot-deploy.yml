@@ -98,7 +98,7 @@ jobs:
           if [ -s ${GITHUB_WORKSPACE}/layer/requirements.txt ]; then
             pip install -r ${GITHUB_WORKSPACE}/layer/requirements.txt -t ${GITHUB_WORKSPACE}/layer/python/lib/python3.12/site-packages
           fi
-            pip install pytest boto3
+            pip install pytest boto3 || { echo 'Pip install for pytest and boto3 failed'; exit 1; }
   
       - name: Run tests
         run: |
